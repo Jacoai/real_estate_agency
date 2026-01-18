@@ -26,17 +26,6 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL',
   );
-  static const VerificationMeta _addressMeta = const VerificationMeta(
-    'address',
-  );
-  late final GeneratedColumn<String> address = GeneratedColumn<String>(
-    'address',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL',
-  );
   static const VerificationMeta _phoneMeta = const VerificationMeta('phone');
   late final GeneratedColumn<String> phone = GeneratedColumn<String>(
     'phone',
@@ -50,13 +39,24 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
   late final GeneratedColumn<String> email = GeneratedColumn<String>(
     'email',
     aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _addressMeta = const VerificationMeta(
+    'address',
+  );
+  late final GeneratedColumn<String> address = GeneratedColumn<String>(
+    'address',
+    aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
     $customConstraints: '',
   );
   @override
-  List<GeneratedColumn> get $columns => [id, name, address, phone, email];
+  List<GeneratedColumn> get $columns => [id, name, phone, email, address];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -82,14 +82,6 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('address')) {
-      context.handle(
-        _addressMeta,
-        address.isAcceptableOrUnknown(data['address']!, _addressMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_addressMeta);
-    }
     if (data.containsKey('phone')) {
       context.handle(
         _phoneMeta,
@@ -102,6 +94,14 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
       context.handle(
         _emailMeta,
         email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_emailMeta);
+    }
+    if (data.containsKey('address')) {
+      context.handle(
+        _addressMeta,
+        address.isAcceptableOrUnknown(data['address']!, _addressMeta),
       );
     }
     return context;
@@ -121,10 +121,6 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
-      address: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}address'],
-      )!,
       phone: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}phone'],
@@ -132,6 +128,10 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
       email: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}email'],
+      )!,
+      address: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address'],
       ),
     );
   }
@@ -148,25 +148,25 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
 class TenantTableData extends DataClass implements Insertable<TenantTableData> {
   final String id;
   final String name;
-  final String address;
   final String phone;
-  final String? email;
+  final String email;
+  final String? address;
   const TenantTableData({
     required this.id,
     required this.name,
-    required this.address,
     required this.phone,
-    this.email,
+    required this.email,
+    this.address,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
-    map['address'] = Variable<String>(address);
     map['phone'] = Variable<String>(phone);
-    if (!nullToAbsent || email != null) {
-      map['email'] = Variable<String>(email);
+    map['email'] = Variable<String>(email);
+    if (!nullToAbsent || address != null) {
+      map['address'] = Variable<String>(address);
     }
     return map;
   }
@@ -175,11 +175,11 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
     return TenantTableCompanion(
       id: Value(id),
       name: Value(name),
-      address: Value(address),
       phone: Value(phone),
-      email: email == null && nullToAbsent
+      email: Value(email),
+      address: address == null && nullToAbsent
           ? const Value.absent()
-          : Value(email),
+          : Value(address),
     );
   }
 
@@ -191,9 +191,9 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
     return TenantTableData(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      address: serializer.fromJson<String>(json['address']),
       phone: serializer.fromJson<String>(json['phone']),
-      email: serializer.fromJson<String?>(json['email']),
+      email: serializer.fromJson<String>(json['email']),
+      address: serializer.fromJson<String?>(json['address']),
     );
   }
   @override
@@ -202,32 +202,32 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
-      'address': serializer.toJson<String>(address),
       'phone': serializer.toJson<String>(phone),
-      'email': serializer.toJson<String?>(email),
+      'email': serializer.toJson<String>(email),
+      'address': serializer.toJson<String?>(address),
     };
   }
 
   TenantTableData copyWith({
     String? id,
     String? name,
-    String? address,
     String? phone,
-    Value<String?> email = const Value.absent(),
+    String? email,
+    Value<String?> address = const Value.absent(),
   }) => TenantTableData(
     id: id ?? this.id,
     name: name ?? this.name,
-    address: address ?? this.address,
     phone: phone ?? this.phone,
-    email: email.present ? email.value : this.email,
+    email: email ?? this.email,
+    address: address.present ? address.value : this.address,
   );
   TenantTableData copyWithCompanion(TenantTableCompanion data) {
     return TenantTableData(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
-      address: data.address.present ? data.address.value : this.address,
       phone: data.phone.present ? data.phone.value : this.phone,
       email: data.email.present ? data.email.value : this.email,
+      address: data.address.present ? data.address.value : this.address,
     );
   }
 
@@ -236,66 +236,66 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
     return (StringBuffer('TenantTableData(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('address: $address, ')
           ..write('phone: $phone, ')
-          ..write('email: $email')
+          ..write('email: $email, ')
+          ..write('address: $address')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, address, phone, email);
+  int get hashCode => Object.hash(id, name, phone, email, address);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TenantTableData &&
           other.id == this.id &&
           other.name == this.name &&
-          other.address == this.address &&
           other.phone == this.phone &&
-          other.email == this.email);
+          other.email == this.email &&
+          other.address == this.address);
 }
 
 class TenantTableCompanion extends UpdateCompanion<TenantTableData> {
   final Value<String> id;
   final Value<String> name;
-  final Value<String> address;
   final Value<String> phone;
-  final Value<String?> email;
+  final Value<String> email;
+  final Value<String?> address;
   final Value<int> rowid;
   const TenantTableCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.address = const Value.absent(),
     this.phone = const Value.absent(),
     this.email = const Value.absent(),
+    this.address = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TenantTableCompanion.insert({
     required String id,
     required String name,
-    required String address,
     required String phone,
-    this.email = const Value.absent(),
+    required String email,
+    this.address = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
-       address = Value(address),
-       phone = Value(phone);
+       phone = Value(phone),
+       email = Value(email);
   static Insertable<TenantTableData> custom({
     Expression<String>? id,
     Expression<String>? name,
-    Expression<String>? address,
     Expression<String>? phone,
     Expression<String>? email,
+    Expression<String>? address,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (address != null) 'address': address,
       if (phone != null) 'phone': phone,
       if (email != null) 'email': email,
+      if (address != null) 'address': address,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -303,17 +303,17 @@ class TenantTableCompanion extends UpdateCompanion<TenantTableData> {
   TenantTableCompanion copyWith({
     Value<String>? id,
     Value<String>? name,
-    Value<String>? address,
     Value<String>? phone,
-    Value<String?>? email,
+    Value<String>? email,
+    Value<String?>? address,
     Value<int>? rowid,
   }) {
     return TenantTableCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      address: address ?? this.address,
       phone: phone ?? this.phone,
       email: email ?? this.email,
+      address: address ?? this.address,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -327,14 +327,14 @@ class TenantTableCompanion extends UpdateCompanion<TenantTableData> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (address.present) {
-      map['address'] = Variable<String>(address.value);
-    }
     if (phone.present) {
       map['phone'] = Variable<String>(phone.value);
     }
     if (email.present) {
       map['email'] = Variable<String>(email.value);
+    }
+    if (address.present) {
+      map['address'] = Variable<String>(address.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -347,9 +347,9 @@ class TenantTableCompanion extends UpdateCompanion<TenantTableData> {
     return (StringBuffer('TenantTableCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('address: $address, ')
           ..write('phone: $phone, ')
           ..write('email: $email, ')
+          ..write('address: $address, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -389,6 +389,15 @@ class LandlordTable extends Table
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL',
   );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
   static const VerificationMeta _adressMeta = const VerificationMeta('adress');
   late final GeneratedColumn<String> adress = GeneratedColumn<String>(
     'adress',
@@ -399,7 +408,7 @@ class LandlordTable extends Table
     $customConstraints: '',
   );
   @override
-  List<GeneratedColumn> get $columns => [id, name, phone, adress];
+  List<GeneratedColumn> get $columns => [id, name, phone, email, adress];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -433,6 +442,14 @@ class LandlordTable extends Table
     } else if (isInserting) {
       context.missing(_phoneMeta);
     }
+    if (data.containsKey('email')) {
+      context.handle(
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_emailMeta);
+    }
     if (data.containsKey('adress')) {
       context.handle(
         _adressMeta,
@@ -460,6 +477,10 @@ class LandlordTable extends Table
         DriftSqlType.string,
         data['${effectivePrefix}phone'],
       )!,
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      )!,
       adress: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}adress'],
@@ -481,11 +502,13 @@ class LandlordTableData extends DataClass
   final String id;
   final String name;
   final String phone;
+  final String email;
   final String? adress;
   const LandlordTableData({
     required this.id,
     required this.name,
     required this.phone,
+    required this.email,
     this.adress,
   });
   @override
@@ -494,6 +517,7 @@ class LandlordTableData extends DataClass
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['phone'] = Variable<String>(phone);
+    map['email'] = Variable<String>(email);
     if (!nullToAbsent || adress != null) {
       map['adress'] = Variable<String>(adress);
     }
@@ -505,6 +529,7 @@ class LandlordTableData extends DataClass
       id: Value(id),
       name: Value(name),
       phone: Value(phone),
+      email: Value(email),
       adress: adress == null && nullToAbsent
           ? const Value.absent()
           : Value(adress),
@@ -520,6 +545,7 @@ class LandlordTableData extends DataClass
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       phone: serializer.fromJson<String>(json['phone']),
+      email: serializer.fromJson<String>(json['email']),
       adress: serializer.fromJson<String?>(json['adress']),
     );
   }
@@ -530,6 +556,7 @@ class LandlordTableData extends DataClass
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'phone': serializer.toJson<String>(phone),
+      'email': serializer.toJson<String>(email),
       'adress': serializer.toJson<String?>(adress),
     };
   }
@@ -538,11 +565,13 @@ class LandlordTableData extends DataClass
     String? id,
     String? name,
     String? phone,
+    String? email,
     Value<String?> adress = const Value.absent(),
   }) => LandlordTableData(
     id: id ?? this.id,
     name: name ?? this.name,
     phone: phone ?? this.phone,
+    email: email ?? this.email,
     adress: adress.present ? adress.value : this.adress,
   );
   LandlordTableData copyWithCompanion(LandlordTableCompanion data) {
@@ -550,6 +579,7 @@ class LandlordTableData extends DataClass
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       phone: data.phone.present ? data.phone.value : this.phone,
+      email: data.email.present ? data.email.value : this.email,
       adress: data.adress.present ? data.adress.value : this.adress,
     );
   }
@@ -560,13 +590,14 @@ class LandlordTableData extends DataClass
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('phone: $phone, ')
+          ..write('email: $email, ')
           ..write('adress: $adress')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, phone, adress);
+  int get hashCode => Object.hash(id, name, phone, email, adress);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -574,6 +605,7 @@ class LandlordTableData extends DataClass
           other.id == this.id &&
           other.name == this.name &&
           other.phone == this.phone &&
+          other.email == this.email &&
           other.adress == this.adress);
 }
 
@@ -581,12 +613,14 @@ class LandlordTableCompanion extends UpdateCompanion<LandlordTableData> {
   final Value<String> id;
   final Value<String> name;
   final Value<String> phone;
+  final Value<String> email;
   final Value<String?> adress;
   final Value<int> rowid;
   const LandlordTableCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.phone = const Value.absent(),
+    this.email = const Value.absent(),
     this.adress = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -594,15 +628,18 @@ class LandlordTableCompanion extends UpdateCompanion<LandlordTableData> {
     required String id,
     required String name,
     required String phone,
+    required String email,
     this.adress = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
-       phone = Value(phone);
+       phone = Value(phone),
+       email = Value(email);
   static Insertable<LandlordTableData> custom({
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? phone,
+    Expression<String>? email,
     Expression<String>? adress,
     Expression<int>? rowid,
   }) {
@@ -610,6 +647,7 @@ class LandlordTableCompanion extends UpdateCompanion<LandlordTableData> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (phone != null) 'phone': phone,
+      if (email != null) 'email': email,
       if (adress != null) 'adress': adress,
       if (rowid != null) 'rowid': rowid,
     });
@@ -619,6 +657,7 @@ class LandlordTableCompanion extends UpdateCompanion<LandlordTableData> {
     Value<String>? id,
     Value<String>? name,
     Value<String>? phone,
+    Value<String>? email,
     Value<String?>? adress,
     Value<int>? rowid,
   }) {
@@ -626,6 +665,7 @@ class LandlordTableCompanion extends UpdateCompanion<LandlordTableData> {
       id: id ?? this.id,
       name: name ?? this.name,
       phone: phone ?? this.phone,
+      email: email ?? this.email,
       adress: adress ?? this.adress,
       rowid: rowid ?? this.rowid,
     );
@@ -643,6 +683,9 @@ class LandlordTableCompanion extends UpdateCompanion<LandlordTableData> {
     if (phone.present) {
       map['phone'] = Variable<String>(phone.value);
     }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
     if (adress.present) {
       map['adress'] = Variable<String>(adress.value);
     }
@@ -658,6 +701,7 @@ class LandlordTableCompanion extends UpdateCompanion<LandlordTableData> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('phone: $phone, ')
+          ..write('email: $email, ')
           ..write('adress: $adress, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -1162,18 +1206,18 @@ typedef $TenantTableCreateCompanionBuilder =
     TenantTableCompanion Function({
       required String id,
       required String name,
-      required String address,
       required String phone,
-      Value<String?> email,
+      required String email,
+      Value<String?> address,
       Value<int> rowid,
     });
 typedef $TenantTableUpdateCompanionBuilder =
     TenantTableCompanion Function({
       Value<String> id,
       Value<String> name,
-      Value<String> address,
       Value<String> phone,
-      Value<String?> email,
+      Value<String> email,
+      Value<String?> address,
       Value<int> rowid,
     });
 
@@ -1196,11 +1240,6 @@ class $TenantTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get address => $composableBuilder(
-    column: $table.address,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get phone => $composableBuilder(
     column: $table.phone,
     builder: (column) => ColumnFilters(column),
@@ -1208,6 +1247,11 @@ class $TenantTableFilterComposer
 
   ColumnFilters<String> get email => $composableBuilder(
     column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get address => $composableBuilder(
+    column: $table.address,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1231,11 +1275,6 @@ class $TenantTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get address => $composableBuilder(
-    column: $table.address,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get phone => $composableBuilder(
     column: $table.phone,
     builder: (column) => ColumnOrderings(column),
@@ -1243,6 +1282,11 @@ class $TenantTableOrderingComposer
 
   ColumnOrderings<String> get email => $composableBuilder(
     column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get address => $composableBuilder(
+    column: $table.address,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -1262,14 +1306,14 @@ class $TenantTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<String> get address =>
-      $composableBuilder(column: $table.address, builder: (column) => column);
-
   GeneratedColumn<String> get phone =>
       $composableBuilder(column: $table.phone, builder: (column) => column);
 
   GeneratedColumn<String> get email =>
       $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get address =>
+      $composableBuilder(column: $table.address, builder: (column) => column);
 }
 
 class $TenantTableTableManager
@@ -1305,32 +1349,32 @@ class $TenantTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<String> address = const Value.absent(),
                 Value<String> phone = const Value.absent(),
-                Value<String?> email = const Value.absent(),
+                Value<String> email = const Value.absent(),
+                Value<String?> address = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TenantTableCompanion(
                 id: id,
                 name: name,
-                address: address,
                 phone: phone,
                 email: email,
+                address: address,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
                 required String name,
-                required String address,
                 required String phone,
-                Value<String?> email = const Value.absent(),
+                required String email,
+                Value<String?> address = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TenantTableCompanion.insert(
                 id: id,
                 name: name,
-                address: address,
                 phone: phone,
                 email: email,
+                address: address,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -1363,6 +1407,7 @@ typedef $LandlordTableCreateCompanionBuilder =
       required String id,
       required String name,
       required String phone,
+      required String email,
       Value<String?> adress,
       Value<int> rowid,
     });
@@ -1371,6 +1416,7 @@ typedef $LandlordTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> name,
       Value<String> phone,
+      Value<String> email,
       Value<String?> adress,
       Value<int> rowid,
     });
@@ -1396,6 +1442,11 @@ class $LandlordTableFilterComposer
 
   ColumnFilters<String> get phone => $composableBuilder(
     column: $table.phone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1429,6 +1480,11 @@ class $LandlordTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get adress => $composableBuilder(
     column: $table.adress,
     builder: (column) => ColumnOrderings(column),
@@ -1452,6 +1508,9 @@ class $LandlordTableAnnotationComposer
 
   GeneratedColumn<String> get phone =>
       $composableBuilder(column: $table.phone, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
 
   GeneratedColumn<String> get adress =>
       $composableBuilder(column: $table.adress, builder: (column) => column);
@@ -1491,12 +1550,14 @@ class $LandlordTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> phone = const Value.absent(),
+                Value<String> email = const Value.absent(),
                 Value<String?> adress = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LandlordTableCompanion(
                 id: id,
                 name: name,
                 phone: phone,
+                email: email,
                 adress: adress,
                 rowid: rowid,
               ),
@@ -1505,12 +1566,14 @@ class $LandlordTableTableManager
                 required String id,
                 required String name,
                 required String phone,
+                required String email,
                 Value<String?> adress = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LandlordTableCompanion.insert(
                 id: id,
                 name: name,
                 phone: phone,
+                email: email,
                 adress: adress,
                 rowid: rowid,
               ),

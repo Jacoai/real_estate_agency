@@ -1,7 +1,7 @@
 CREATE TABLE tenant_table(
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL, 
-    address TEXT NOT NULL,
     phone TEXT NOT NULL,
-    email TEXT
+    email TEXT NOT NULL,
+    address TEXT
 );

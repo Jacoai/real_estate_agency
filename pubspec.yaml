@@ -7,14 +7,20 @@ environment:
   sdk: ^3.10.1
 
 dependencies:
+  drift: ^2.30.1
+  drift_flutter: ^0.2.8
   flutter:
     sdk: flutter
   go_router: ^17.0.1
+  path: ^1.9.1
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  build_runner: ^2.10.5
+  drift_dev: ^2.30.1
 
 flutter:
   uses-material-design: true

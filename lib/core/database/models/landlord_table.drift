@@ -1,0 +1,6 @@
+CREATE TABLE landlord_table(
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL, 
+    phone TEXT NOT NULL,
+    adress TEXT
+);

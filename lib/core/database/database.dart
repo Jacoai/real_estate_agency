@@ -24,7 +24,7 @@ class LocalDatabase extends _$LocalDatabase {
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'local_db_v1.sqlite'));
+    final file = File(p.join(dbFolder.path, 'local_db_v2.sqlite'));
 
     return NativeDatabase.createInBackground(file);
   });

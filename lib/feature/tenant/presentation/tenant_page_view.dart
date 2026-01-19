@@ -12,10 +12,10 @@ class TenantPageView extends StatefulWidget {
 
 class _TenantPageViewState extends State<TenantPageView> {
   final _bloc = TenantPageBloc();
-  final TextEditingController nameColtroller = TextEditingController();
-  final TextEditingController phoneColtroller = TextEditingController();
-  final TextEditingController emailColtroller = TextEditingController();
-  final TextEditingController adressColtroller = TextEditingController();
+  final nameColtroller = TextEditingController();
+  final phoneColtroller = TextEditingController();
+  final emailColtroller = TextEditingController();
+  final adressColtroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;

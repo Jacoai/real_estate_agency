@@ -12,10 +12,10 @@ class LandlordPageView extends StatefulWidget {
 
 class _LandlordPageViewState extends State<LandlordPageView> {
   final _bloc = LandlordPageBloc();
-  final TextEditingController nameColtroller = TextEditingController();
-  final TextEditingController phoneColtroller = TextEditingController();
-  final TextEditingController emailColtroller = TextEditingController();
-  final TextEditingController adressColtroller = TextEditingController();
+  final nameColtroller = TextEditingController();
+  final phoneColtroller = TextEditingController();
+  final emailColtroller = TextEditingController();
+  final adressColtroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

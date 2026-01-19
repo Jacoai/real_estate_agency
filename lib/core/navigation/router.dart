@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:real_estate_agency/core/navigation/root_screen.dart';
 import 'package:real_estate_agency/feature/landlords/presentation/landlord_page_view.dart';
+import 'package:real_estate_agency/feature/real_estate/presentation/real_estate_page_view.dart';
 import 'package:real_estate_agency/feature/tenant/presentation/tenant_page_view.dart';
 
 final router = GoRouter(
@@ -36,7 +36,7 @@ final router = GoRouter(
             GoRoute(
               path: '/real_estate',
               builder: (context, state) {
-                return Scaffold();
+                return RealEstatePageView();
               },
             ),
           ],

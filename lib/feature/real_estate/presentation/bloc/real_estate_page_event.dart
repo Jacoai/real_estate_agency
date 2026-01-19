@@ -4,12 +4,15 @@ sealed class RealEstatePageEvent {}
 
 class RealEstatePageOpenedEvent extends RealEstatePageEvent {}
 
+class StreamLandlordsEvent extends RealEstatePageEvent {}
+
 class AddRealEstateEvent extends RealEstatePageEvent {
   final String title;
   final String address;
   final String type;
   final double area;
   final String status;
+  final String landlordId;
 
   AddRealEstateEvent({
     required this.address,
@@ -17,6 +20,7 @@ class AddRealEstateEvent extends RealEstatePageEvent {
     required this.status,
     required this.title,
     required this.type,
+    required this.landlordId,
   });
 }
 

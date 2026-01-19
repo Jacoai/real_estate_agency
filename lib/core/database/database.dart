@@ -17,6 +17,8 @@ part 'database.g.dart';
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase() : super(_openConnection());
 
+  LocalDatabase.test(super.executor);
+
   @override
   int get schemaVersion => 1;
 }

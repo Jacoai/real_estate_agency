@@ -50,10 +50,10 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
   late final GeneratedColumn<String> address = GeneratedColumn<String>(
     'address',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   @override
   List<GeneratedColumn> get $columns => [id, name, phone, email, address];
@@ -103,6 +103,8 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
         _addressMeta,
         address.isAcceptableOrUnknown(data['address']!, _addressMeta),
       );
+    } else if (isInserting) {
+      context.missing(_addressMeta);
     }
     return context;
   }
@@ -132,7 +134,7 @@ class TenantTable extends Table with TableInfo<TenantTable, TenantTableData> {
       address: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}address'],
-      ),
+      )!,
     );
   }
 
@@ -150,13 +152,13 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
   final String name;
   final String phone;
   final String email;
-  final String? address;
+  final String address;
   const TenantTableData({
     required this.id,
     required this.name,
     required this.phone,
     required this.email,
-    this.address,
+    required this.address,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -165,9 +167,7 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
     map['name'] = Variable<String>(name);
     map['phone'] = Variable<String>(phone);
     map['email'] = Variable<String>(email);
-    if (!nullToAbsent || address != null) {
-      map['address'] = Variable<String>(address);
-    }
+    map['address'] = Variable<String>(address);
     return map;
   }
 
@@ -177,9 +177,7 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
       name: Value(name),
       phone: Value(phone),
       email: Value(email),
-      address: address == null && nullToAbsent
-          ? const Value.absent()
-          : Value(address),
+      address: Value(address),
     );
   }
 
@@ -193,7 +191,7 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
       name: serializer.fromJson<String>(json['name']),
       phone: serializer.fromJson<String>(json['phone']),
       email: serializer.fromJson<String>(json['email']),
-      address: serializer.fromJson<String?>(json['address']),
+      address: serializer.fromJson<String>(json['address']),
     );
   }
   @override
@@ -204,7 +202,7 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
       'name': serializer.toJson<String>(name),
       'phone': serializer.toJson<String>(phone),
       'email': serializer.toJson<String>(email),
-      'address': serializer.toJson<String?>(address),
+      'address': serializer.toJson<String>(address),
     };
   }
 
@@ -213,13 +211,13 @@ class TenantTableData extends DataClass implements Insertable<TenantTableData> {
     String? name,
     String? phone,
     String? email,
-    Value<String?> address = const Value.absent(),
+    String? address,
   }) => TenantTableData(
     id: id ?? this.id,
     name: name ?? this.name,
     phone: phone ?? this.phone,
     email: email ?? this.email,
-    address: address.present ? address.value : this.address,
+    address: address ?? this.address,
   );
   TenantTableData copyWithCompanion(TenantTableCompanion data) {
     return TenantTableData(
@@ -261,7 +259,7 @@ class TenantTableCompanion extends UpdateCompanion<TenantTableData> {
   final Value<String> name;
   final Value<String> phone;
   final Value<String> email;
-  final Value<String?> address;
+  final Value<String> address;
   final Value<int> rowid;
   const TenantTableCompanion({
     this.id = const Value.absent(),
@@ -276,12 +274,13 @@ class TenantTableCompanion extends UpdateCompanion<TenantTableData> {
     required String name,
     required String phone,
     required String email,
-    this.address = const Value.absent(),
+    required String address,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
        phone = Value(phone),
-       email = Value(email);
+       email = Value(email),
+       address = Value(address);
   static Insertable<TenantTableData> custom({
     Expression<String>? id,
     Expression<String>? name,
@@ -305,7 +304,7 @@ class TenantTableCompanion extends UpdateCompanion<TenantTableData> {
     Value<String>? name,
     Value<String>? phone,
     Value<String>? email,
-    Value<String?>? address,
+    Value<String>? address,
     Value<int>? rowid,
   }) {
     return TenantTableCompanion(
@@ -1208,7 +1207,7 @@ typedef $TenantTableCreateCompanionBuilder =
       required String name,
       required String phone,
       required String email,
-      Value<String?> address,
+      required String address,
       Value<int> rowid,
     });
 typedef $TenantTableUpdateCompanionBuilder =
@@ -1217,7 +1216,7 @@ typedef $TenantTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String> phone,
       Value<String> email,
-      Value<String?> address,
+      Value<String> address,
       Value<int> rowid,
     });
 
@@ -1351,7 +1350,7 @@ class $TenantTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String> phone = const Value.absent(),
                 Value<String> email = const Value.absent(),
-                Value<String?> address = const Value.absent(),
+                Value<String> address = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TenantTableCompanion(
                 id: id,
@@ -1367,7 +1366,7 @@ class $TenantTableTableManager
                 required String name,
                 required String phone,
                 required String email,
-                Value<String?> address = const Value.absent(),
+                required String address,
                 Value<int> rowid = const Value.absent(),
               }) => TenantTableCompanion.insert(
                 id: id,

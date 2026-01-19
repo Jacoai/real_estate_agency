@@ -22,16 +22,7 @@ class RootScreen extends StatelessWidget {
 }
 
 List<BottomNavigationBarItem> _buildBottomNavBarItems = const [
-  BottomNavigationBarItem(
-    icon: Icon(Icons.landslide_rounded),
-    label: 'Арендодатели',
-  ),
-  BottomNavigationBarItem(
-    icon: Icon(Icons.landslide_rounded),
-    label: 'Арендаторы',
-  ),
-  BottomNavigationBarItem(
-    icon: Icon(Icons.landslide_rounded),
-    label: 'Недвижимость',
-  ),
+  BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Арендодатели'),
+  BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Арендаторы'),
+  BottomNavigationBarItem(icon: Icon(Icons.house), label: 'Недвижимость'),
 ];

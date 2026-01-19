@@ -726,11 +726,11 @@ class RealEstateTable extends Table
   static const VerificationMeta _landlordIdMeta = const VerificationMeta(
     'landlordId',
   );
-  late final GeneratedColumn<int> landlordId = GeneratedColumn<int>(
+  late final GeneratedColumn<String> landlordId = GeneratedColumn<String>(
     'landlord_id',
     aliasedName,
     false,
-    type: DriftSqlType.int,
+    type: DriftSqlType.string,
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL',
   );
@@ -870,7 +870,7 @@ class RealEstateTable extends Table
         data['${effectivePrefix}id'],
       )!,
       landlordId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
+        DriftSqlType.string,
         data['${effectivePrefix}landlord_id'],
       )!,
       title: attachedDatabase.typeMapping.read(
@@ -912,7 +912,7 @@ class RealEstateTable extends Table
 class RealEstateTableData extends DataClass
     implements Insertable<RealEstateTableData> {
   final String id;
-  final int landlordId;
+  final String landlordId;
   final String title;
   final String address;
   final String type;
@@ -931,7 +931,7 @@ class RealEstateTableData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['landlord_id'] = Variable<int>(landlordId);
+    map['landlord_id'] = Variable<String>(landlordId);
     map['title'] = Variable<String>(title);
     map['address'] = Variable<String>(address);
     map['type'] = Variable<String>(type);
@@ -959,7 +959,7 @@ class RealEstateTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return RealEstateTableData(
       id: serializer.fromJson<String>(json['id']),
-      landlordId: serializer.fromJson<int>(json['landlord_id']),
+      landlordId: serializer.fromJson<String>(json['landlord_id']),
       title: serializer.fromJson<String>(json['title']),
       address: serializer.fromJson<String>(json['address']),
       type: serializer.fromJson<String>(json['type']),
@@ -972,7 +972,7 @@ class RealEstateTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'landlord_id': serializer.toJson<int>(landlordId),
+      'landlord_id': serializer.toJson<String>(landlordId),
       'title': serializer.toJson<String>(title),
       'address': serializer.toJson<String>(address),
       'type': serializer.toJson<String>(type),
@@ -983,7 +983,7 @@ class RealEstateTableData extends DataClass
 
   RealEstateTableData copyWith({
     String? id,
-    int? landlordId,
+    String? landlordId,
     String? title,
     String? address,
     String? type,
@@ -1044,7 +1044,7 @@ class RealEstateTableData extends DataClass
 
 class RealEstateTableCompanion extends UpdateCompanion<RealEstateTableData> {
   final Value<String> id;
-  final Value<int> landlordId;
+  final Value<String> landlordId;
   final Value<String> title;
   final Value<String> address;
   final Value<String> type;
@@ -1063,7 +1063,7 @@ class RealEstateTableCompanion extends UpdateCompanion<RealEstateTableData> {
   });
   RealEstateTableCompanion.insert({
     required String id,
-    required int landlordId,
+    required String landlordId,
     required String title,
     required String address,
     required String type,
@@ -1079,7 +1079,7 @@ class RealEstateTableCompanion extends UpdateCompanion<RealEstateTableData> {
        status = Value(status);
   static Insertable<RealEstateTableData> custom({
     Expression<String>? id,
-    Expression<int>? landlordId,
+    Expression<String>? landlordId,
     Expression<String>? title,
     Expression<String>? address,
     Expression<String>? type,
@@ -1101,7 +1101,7 @@ class RealEstateTableCompanion extends UpdateCompanion<RealEstateTableData> {
 
   RealEstateTableCompanion copyWith({
     Value<String>? id,
-    Value<int>? landlordId,
+    Value<String>? landlordId,
     Value<String>? title,
     Value<String>? address,
     Value<String>? type,
@@ -1128,7 +1128,7 @@ class RealEstateTableCompanion extends UpdateCompanion<RealEstateTableData> {
       map['id'] = Variable<String>(id.value);
     }
     if (landlordId.present) {
-      map['landlord_id'] = Variable<int>(landlordId.value);
+      map['landlord_id'] = Variable<String>(landlordId.value);
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
@@ -1604,7 +1604,7 @@ typedef $LandlordTableProcessedTableManager =
 typedef $RealEstateTableCreateCompanionBuilder =
     RealEstateTableCompanion Function({
       required String id,
-      required int landlordId,
+      required String landlordId,
       required String title,
       required String address,
       required String type,
@@ -1615,7 +1615,7 @@ typedef $RealEstateTableCreateCompanionBuilder =
 typedef $RealEstateTableUpdateCompanionBuilder =
     RealEstateTableCompanion Function({
       Value<String> id,
-      Value<int> landlordId,
+      Value<String> landlordId,
       Value<String> title,
       Value<String> address,
       Value<String> type,
@@ -1638,7 +1638,7 @@ class $RealEstateTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get landlordId => $composableBuilder(
+  ColumnFilters<String> get landlordId => $composableBuilder(
     column: $table.landlordId,
     builder: (column) => ColumnFilters(column),
   );
@@ -1683,7 +1683,7 @@ class $RealEstateTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get landlordId => $composableBuilder(
+  ColumnOrderings<String> get landlordId => $composableBuilder(
     column: $table.landlordId,
     builder: (column) => ColumnOrderings(column),
   );
@@ -1726,7 +1726,7 @@ class $RealEstateTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<int> get landlordId => $composableBuilder(
+  GeneratedColumn<String> get landlordId => $composableBuilder(
     column: $table.landlordId,
     builder: (column) => column,
   );
@@ -1783,7 +1783,7 @@ class $RealEstateTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<int> landlordId = const Value.absent(),
+                Value<String> landlordId = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String> address = const Value.absent(),
                 Value<String> type = const Value.absent(),
@@ -1803,7 +1803,7 @@ class $RealEstateTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required int landlordId,
+                required String landlordId,
                 required String title,
                 required String address,
                 required String type,

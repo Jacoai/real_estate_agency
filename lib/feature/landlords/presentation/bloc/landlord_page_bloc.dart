@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:drift/drift.dart';
 import 'package:real_estate_agency/core/database/database.dart';
 import 'package:real_estate_agency/feature/landlords/models/landlord.dart';
 import 'package:real_estate_agency/main.dart';
@@ -30,6 +31,7 @@ class LandlordPageBloc extends Bloc<LandlordPageEvent, LandlordPageState> {
               name: row.name,
               phone: row.phone,
               email: row.email,
+              adress: row.adress,
             ),
           )
           .watch(),
@@ -49,6 +51,7 @@ class LandlordPageBloc extends Bloc<LandlordPageEvent, LandlordPageState> {
             name: event.name,
             phone: event.phone,
             email: event.email,
+            adress: Value<String?>(event.adress),
           ),
         );
   }

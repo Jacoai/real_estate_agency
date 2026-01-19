@@ -1,0 +1,12 @@
+import '../models/landlord_table.drift';
+
+CREATE TABLE real_estate_table(
+    id TEXT NOT NULL PRIMARY KEY,
+    landlord_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    address TEXT NOT NULL,
+    type TEXT NOT NULL,
+    area REAL NOT NULL,
+    status TEXT NOT NULL,
+    FOREIGN KEY (landlord_id) REFERENCES landlord_table(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
